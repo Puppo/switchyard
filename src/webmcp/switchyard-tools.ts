@@ -1,0 +1,107 @@
+import type { SwitchyardEngine } from "../engine/simulation.js";
+import { registerSafeTool } from "./runtime.js";
+
+export interface RegisterSwitchyardToolsOptions {
+  /** Optional callback to flush synchronous DOM updates before tool resolution. */
+  readonly flushUi?: () => Promise<void> | void;
+}
+
+/**
+ * Registers Switchyard's three WebMCP tools (`get_scene`, `set_switch`, `move_train`)
+ * concurrently on `document.modelContext` and returns an AbortController-backed cleanup.
+ */
+export async function registerSwitchyardTools(
+  engine: SwitchyardEngine,
+  options: RegisterSwitchyardToolsOptions = {},
+): Promise<() => void> {
+  const controller = new AbortController();
+
+  await Promise.all([
+    registerSafeTool(
+      {
+        name: "get_scene",
+        description:
+          "Reads the railway switchyard state, including all numbered user annotations (#1, #2, ...) with optional notes, track connections, occupancy, closures, and switch alignment. Call first whenever the user refers to 'this', 'here', or numbered pins (#1, #2), or before planning maneuvers. If a needed target or destination annotation is missing, ask the user before moving any train.",
+        annotations: {
+          readOnlyHint: true,
+        },
+        async execute() {
+          const payload = engine.getScenePayload("webmcp");
+          await options.flushUi?.();
+          return payload;
+        },
+      },
+      controller,
+    ),
+
+    registerSafeTool(
+      {
+        name: "set_switch",
+        description:
+          "Aligns a railway turnout switch to a target branch when its approach track is clear of trains and active reservations. Use before routing a train toward a platform or exit branch that differs from the current switch position.",
+        inputSchema: {
+          type: "object",
+          properties: {
+            switchId: {
+              type: "string",
+              enum: ["main-switch"],
+              description: "Turnout switch identifier to align",
+            },
+            branchId: {
+              type: "string",
+              enum: ["regional-exit", "platform-a", "platform-b"],
+              description: "Target branch track to align the switch toward",
+            },
+          },
+          required: ["switchId", "branchId"],
+        },
+        async execute(input) {
+          const result = engine.setSwitch(
+            input.switchId,
+            input.branchId,
+            "webmcp",
+          );
+          await options.flushUi?.();
+          return result;
+        },
+      },
+      controller,
+    ),
+
+    registerSafeTool(
+      {
+        name: "move_train",
+        description:
+          "Moves a train to a target destination track along an open, clear, and switch-aligned route, reserving traversed tracks until arrival. Use to dispatch a train once its destination is confirmed and required switches are aligned.",
+        inputSchema: {
+          type: "object",
+          properties: {
+            trainId: {
+              type: "string",
+              enum: ["yellow", "blue"],
+              description: "Train identifier or color name to dispatch",
+            },
+            destinationId: {
+              type: "string",
+              enum: ["regional-exit", "platform-a", "platform-b", "entry"],
+              description: "Target stopping track or platform identifier",
+            },
+          },
+          required: ["trainId", "destinationId"],
+        },
+        async execute(input, signal) {
+          const result = await engine.moveTrain(
+            input.trainId,
+            input.destinationId,
+            { origin: "webmcp", signal },
+          );
+          await options.flushUi?.();
+          return result;
+        },
+      },
+      controller,
+    ),
+  ]);
+
+  return () => controller.abort();
+}

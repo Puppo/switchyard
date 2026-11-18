@@ -1,0 +1,263 @@
+[
+  {
+    "name": "Run 1: Dispatch blue regional train, align switch to Platform A, move yellow train",
+    "messages": [
+      {
+        "role": "user",
+        "type": "message",
+        "content": "Move this train here. Dispatch the blue regional train first."
+      }
+    ],
+    "expectedCall": [
+      {
+        "functionName": "get_scene",
+        "arguments": {},
+        "mockOutput": {
+          "selectedTrainId": "yellow",
+          "pinnedDestinationId": "platform-a",
+          "trains": [
+            {
+              "id": "yellow",
+              "label": "Yellow Freight Train",
+              "trackId": "entry",
+              "status": "idle"
+            },
+            {
+              "id": "blue",
+              "label": "Blue Regional Train",
+              "trackId": "shared",
+              "status": "idle"
+            }
+          ],
+          "tracks": [
+            {
+              "id": "entry",
+              "landmark": "Signal Box",
+              "occupiedBy": "yellow",
+              "connectsTo": ["shared"]
+            },
+            {
+              "id": "shared",
+              "landmark": "Main Switch",
+              "canStop": false,
+              "occupiedBy": "blue",
+              "connectsTo": [
+                "entry",
+                "regional-exit",
+                "platform-a",
+                "platform-b"
+              ]
+            },
+            {
+              "id": "regional-exit",
+              "landmark": "Regional Outbound Exit",
+              "connectsTo": ["shared"]
+            },
+            {
+              "id": "platform-a",
+              "landmark": "Water Tower",
+              "connectsTo": ["shared"]
+            },
+            {
+              "id": "platform-b",
+              "landmark": "Station Canopy",
+              "connectsTo": ["shared"]
+            }
+          ],
+          "switches": [
+            {
+              "id": "main-switch",
+              "activeBranchId": "regional-exit",
+              "locked": false
+            }
+          ],
+          "closedTrackIds": []
+        }
+      },
+      {
+        "functionName": "move_train",
+        "arguments": { "trainId": "blue", "destinationId": "regional-exit" },
+        "mockOutput": {
+          "ok": true,
+          "status": "arrived",
+          "trainId": "blue",
+          "arrivedAtTrackId": "regional-exit"
+        }
+      },
+      {
+        "functionName": "set_switch",
+        "arguments": { "switchId": "main-switch", "branchId": "platform-a" },
+        "mockOutput": {
+          "ok": true,
+          "switchId": "main-switch",
+          "activeBranchId": "platform-a"
+        }
+      },
+      {
+        "functionName": "move_train",
+        "arguments": { "trainId": "yellow", "destinationId": "platform-a" },
+        "mockOutput": {
+          "ok": true,
+          "status": "arrived",
+          "trainId": "yellow",
+          "arrivedAtTrackId": "platform-a"
+        }
+      }
+    ]
+  },
+  {
+    "name": "Run 2: Same prompt after reset with pin on Platform B",
+    "messages": [
+      {
+        "role": "user",
+        "type": "message",
+        "content": "Move this train here. Dispatch the blue regional train first."
+      }
+    ],
+    "expectedCall": [
+      {
+        "functionName": "get_scene",
+        "arguments": {},
+        "mockOutput": {
+          "selectedTrainId": "yellow",
+          "pinnedDestinationId": "platform-b",
+          "trains": [
+            {
+              "id": "yellow",
+              "label": "Yellow Freight Train",
+              "trackId": "entry",
+              "status": "idle"
+            },
+            {
+              "id": "blue",
+              "label": "Blue Regional Train",
+              "trackId": "shared",
+              "status": "idle",
+              "dedicatedExitId": "regional-exit"
+            }
+          ],
+          "switches": [
+            {
+              "id": "main-switch",
+              "activeBranchId": "regional-exit",
+              "locked": true
+            }
+          ],
+          "closedTrackIds": []
+        }
+      },
+      {
+        "functionName": "move_train",
+        "arguments": { "trainId": "blue", "destinationId": "regional-exit" },
+        "mockOutput": {
+          "ok": true,
+          "status": "arrived",
+          "trainId": "blue",
+          "arrivedAtTrackId": "regional-exit"
+        }
+      },
+      {
+        "functionName": "set_switch",
+        "arguments": { "switchId": "main-switch", "branchId": "platform-b" },
+        "mockOutput": {
+          "ok": true,
+          "switchId": "main-switch",
+          "activeBranchId": "platform-b"
+        }
+      },
+      {
+        "functionName": "move_train",
+        "arguments": { "trainId": "yellow", "destinationId": "platform-b" },
+        "mockOutput": {
+          "ok": true,
+          "status": "arrived",
+          "trainId": "yellow",
+          "arrivedAtTrackId": "platform-b"
+        }
+      }
+    ]
+  },
+  {
+    "name": "Missing pin: inspect scene and stop to clarify before moving trains",
+    "messages": [
+      {
+        "role": "user",
+        "type": "message",
+        "content": "Move this train here. Dispatch the blue regional train first."
+      },
+      {
+        "role": "model",
+        "type": "functioncall",
+        "name": "get_scene",
+        "arguments": {}
+      },
+      {
+        "role": "user",
+        "type": "functionresponse",
+        "name": "get_scene",
+        "response": {
+          "result": {
+            "selectedTrainId": "yellow",
+            "pinnedDestinationId": null,
+            "trains": [
+              { "id": "yellow", "trackId": "entry", "status": "idle" },
+              {
+                "id": "blue",
+                "trackId": "shared",
+                "status": "idle",
+                "dedicatedExitId": "regional-exit"
+              }
+            ],
+            "closedTrackIds": []
+          }
+        }
+      }
+    ],
+    "expectedCall": []
+  },
+  {
+    "name": "Closed Branch B recovery: inspect closure and stop moving yellow onto platform-b",
+    "messages": [
+      {
+        "role": "user",
+        "type": "message",
+        "content": "Move this train here. Dispatch the blue regional train first."
+      },
+      {
+        "role": "model",
+        "type": "functioncall",
+        "name": "get_scene",
+        "arguments": {}
+      },
+      {
+        "role": "user",
+        "type": "functionresponse",
+        "name": "get_scene",
+        "response": {
+          "result": {
+            "selectedTrainId": "yellow",
+            "pinnedDestinationId": "platform-b",
+            "trains": [
+              { "id": "yellow", "trackId": "entry", "status": "idle" },
+              {
+                "id": "blue",
+                "trackId": "shared",
+                "status": "idle",
+                "dedicatedExitId": "regional-exit"
+              }
+            ],
+            "switches": [
+              {
+                "id": "main-switch",
+                "activeBranchId": "regional-exit",
+                "locked": true
+              }
+            ],
+            "closedTrackIds": ["platform-b"]
+          }
+        }
+      }
+    ],
+    "expectedCall": []
+  }
+]

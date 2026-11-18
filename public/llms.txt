@@ -1,0 +1,15 @@
+# Switchyard
+
+> Realistic 3D interactive miniature railway diorama demonstrating browser-native WebMCP tool orchestration (`document.modelContext`) with ordered multi-annotations (`#1`, `#2`, `#3`...) and `@w3c/webmcp-polyfill`.
+
+## Entry Points
+
+- `/`: Full-bleed 3D Switchyard diorama with ordered `#1..#N` context annotations (plus optional per-pin notes), clickable 3D Branch B closure gate, and live WebMCP call telemetry. Train and switch maneuvers are strictly WebMCP-only.
+- `/probe.html`: Minimal Step 1 browser compatibility probe with two selectable objects (`object-alpha`, `object-beta`) and WebMCP tools (`get_probe_state`, `color_object`).
+- `/schema.json`: Consolidated WebMCP JSON tool definitions (`get_scene`, `set_switch`, `move_train`).
+
+## WebMCP Tools (`/`)
+
+- `get_scene` (`readOnlyHint: true`): Returns ordered user `annotations` (`#1`, `#2`, ... with `entityId`, `entityType`, `label`, `locationTrackId`, `note`), derived `selectedTrainId`/`pinnedDestinationId`, trains, tracks, occupancy, reservations, closures, and `main-switch` alignment.
+- `set_switch`: Aligns `main-switch` to `regional-exit`, `platform-a`, or `platform-b` when `shared` is unoccupied and unreserved.
+- `move_train`: Dispatches `yellow` or `blue` to `regional-exit`, `platform-a`, `platform-b`, or `entry` along an open, clear, switch-aligned route.
