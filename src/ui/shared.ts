@@ -7,7 +7,6 @@ export function ensureSwitchControlPolyfill(): void {
     typeof HTMLInputElement !== "undefined" &&
     !("switch" in HTMLInputElement.prototype)
   ) {
-    void import("input-switch-polyfill/input-switch-polyfill.css");
     void import("input-switch-polyfill");
   }
 }

@@ -168,6 +168,11 @@ pre,
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 }
 
+/* Ensure [hidden] takes precedence over component display utilities */
+[hidden][hidden] {
+  display: none;
+}
+
 /* Visually hidden utility keeping focusable skip-links accessible */
 .visually-hidden:where(:not(:focus-within, :active)) {
   position: absolute;
@@ -666,6 +671,7 @@ input[type="checkbox"][switch]:focus-visible {
 }
 
 .log-item {
+  inline-size: 100%;
   padding: 0.375rem 0.5rem;
   border-radius: 0.375rem;
   background: var(--bg-surface);
