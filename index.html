@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="light dark" />
+    <title>Switchyard · 3D Railway WebMCP Demo</title>
+    <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
+    <link rel="stylesheet" href="./src/styles/main.css" />
+  </head>
+  <body>
+    <div class="diorama-shell">
+      <a href="#main-title" class="skip-link visually-hidden">
+        Skip to yard overlay
+      </a>
+
+      <main class="diorama-stage" aria-label="3D railway diorama">
+        <div id="diorama-canvas-host" class="diorama-canvas-host"></div>
+        <div id="diorama-overlay" class="scene-overlay"></div>
+
+        <div class="hud-layer">
+          <header class="hud-top">
+            <div class="hud-card hud-brand">
+              <h1 id="main-title" class="brand-title" tabindex="-1">
+                Switchyard
+              </h1>
+              <div class="runtime-wrap">
+                <button
+                  id="webmcp-runtime-btn"
+                  type="button"
+                  class="pill pill-btn"
+                  aria-expanded="false"
+                  aria-controls="webmcp-runtime-popover"
+                >
+                  Detecting WebMCP...
+                </button>
+                <section
+                  id="webmcp-runtime-popover"
+                  class="hud-popover"
+                  aria-label="WebMCP runtime details"
+                  hidden
+                >
+                  <p id="webmcp-runtime-detail" class="helper-note"></p>
+                  <div class="popover-actions">
+                    <code class="flag-code">chrome://flags/#enable-webmcp-testing</code>
+                    <button
+                      id="copy-flag-btn"
+                      type="button"
+                      class="btn btn-sm"
+                    >
+                      Copy Flag
+                    </button>
+                  </div>
+                </section>
+              </div>
+              <a href="./probe.html" class="btn btn-sm">Browser Probe &rarr;</a>
+            </div>
+
+            <div class="hud-card hud-yard-actions">
+              <div class="barrier-toggle">
+                <label for="close-branch-b" class="switch-label">
+                  Branch B
+                </label>
+                <span id="close-branch-b-state" class="pill pill-ok">OPEN</span>
+                <input id="close-branch-b" type="checkbox" switch />
+              </div>
+              <button
+                id="reset-scenario-btn"
+                type="button"
+                class="btn btn-sm btn-danger"
+              >
+                Reset
+              </button>
+            </div>
+          </header>
+
+          <div class="hud-bottom">
+            <div class="hud-card hud-hint-pill">
+              <span id="annotations-summary-text" class="helper-note">
+                Click any train, platform, track, or switch in 3D to drop #1, #2… pins
+              </span>
+              <button
+                id="clear-annotations-btn"
+                type="button"
+                class="btn btn-sm"
+                hidden
+              >
+                Clear Pins
+              </button>
+              <div
+                id="hud-status-live"
+                class="visually-hidden"
+                role="status"
+                aria-live="polite"
+              ></div>
+            </div>
+
+            <section class="hud-card hud-log" aria-label="WebMCP telemetry log">
+              <details id="log-details" class="log-details" open>
+                <summary id="log-summary" class="log-summary-bar">
+                  WebMCP Call Log (0)
+                </summary>
+                <div class="log-body">
+                  <div class="log-toolbar">
+                    <span class="helper-note">
+                      Drag: Orbit &middot; Scroll: Zoom &middot; Click 3D: Pin
+                    </span>
+                    <button id="clear-log-btn" type="button" class="btn btn-sm">
+                      Clear
+                    </button>
+                  </div>
+                  <ul id="action-log-list" class="log-list scroll-pane"></ul>
+                </div>
+              </details>
+            </section>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <script type="module" src="./src/main.ts"></script>
+  </body>
+</html>

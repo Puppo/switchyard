@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="light dark" />
+    <title>Browser Probe · Switchyard WebMCP</title>
+    <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
+    <link rel="stylesheet" href="./src/styles/main.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <a href="#main-title" class="skip-link visually-hidden">
+        Skip to probe controls
+      </a>
+
+      <header class="app-header">
+        <div class="brand-group">
+          <h1 id="main-title" class="brand-title" tabindex="-1">
+            Step 1 Target-Browser WebMCP Probe
+          </h1>
+          <span id="probe-runtime-badge" class="pill" role="status">
+            Detecting WebMCP...
+          </span>
+        </div>
+        <div class="header-actions">
+          <a href="./" class="btn btn-sm">&larr; Back to Switchyard 3D</a>
+          <button
+            id="probe-reset-btn"
+            type="button"
+            class="btn btn-sm btn-danger"
+          >
+            Reset Probe
+          </button>
+        </div>
+      </header>
+
+      <main class="probe-main">
+        <section class="card" aria-labelledby="probe-objects-heading">
+          <h2 id="probe-objects-heading" class="card-heading">
+            Selectable Objects
+          </h2>
+          <p class="helper-note">
+            1. Click one object below to select it. 2. Ask your browser AI
+            agent: <strong>"Color this green."</strong> 3. Confirm in the log
+            that <code>get_probe_state</code> read your selection and
+            <code>color_object</code> updated that exact ID (without clicking
+            DOM buttons).
+          </p>
+
+          <div class="grounding-row" style="margin-top: 0.75rem">
+            <div>
+              <span class="grounding-label">Active Selection</span>
+              <span id="probe-selection-value" class="grounding-value mono">
+                null
+              </span>
+            </div>
+            <button id="probe-clear-sel-btn" type="button" class="btn btn-sm">
+              Clear
+            </button>
+          </div>
+
+          <div class="probe-stage">
+            <button
+              id="probe-btn-alpha"
+              type="button"
+              class="probe-object-btn"
+              aria-pressed="false"
+            >
+              <span
+                id="probe-shape-alpha"
+                class="probe-shape probe-shape-circle"
+                aria-hidden="true"
+              ></span>
+              <strong class="mono">object-alpha</strong>
+              <span>Signal Circle (<span id="probe-color-alpha">slate</span>)</span>
+            </button>
+
+            <button
+              id="probe-btn-beta"
+              type="button"
+              class="probe-object-btn"
+              aria-pressed="false"
+            >
+              <span
+                id="probe-shape-beta"
+                class="probe-shape probe-shape-square"
+                aria-hidden="true"
+              ></span>
+              <strong class="mono">object-beta</strong>
+              <span>Relay Square (<span id="probe-color-beta">amber</span>)</span>
+            </button>
+          </div>
+
+          <div
+            id="probe-status-banner"
+            class="status-banner"
+            role="status"
+            aria-live="polite"
+          >
+            Ready. Click an object to select it.
+          </div>
+        </section>
+
+        <section
+          style="display: flex; flex-direction: column; gap: 0.75rem"
+          aria-label="WebMCP probe inspector and log"
+        >
+          <div id="probe-inspector-host"></div>
+
+          <section class="card" aria-labelledby="probe-log-heading">
+            <div class="card-header-row">
+              <h2 id="probe-log-heading" class="card-heading">Probe Log</h2>
+              <button id="probe-clear-log-btn" type="button" class="btn btn-sm">
+                Clear Log
+              </button>
+            </div>
+            <ul id="probe-log-list" class="log-list scroll-pane"></ul>
+          </section>
+        </section>
+      </main>
+    </div>
+
+    <script type="module" src="./src/probe/main.ts"></script>
+  </body>
+</html>
